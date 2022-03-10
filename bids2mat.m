@@ -58,10 +58,11 @@ function bids2mat(EEG,label_file,filepath)
            data = EEG.data(:,:,segment_num);
            num_timestamps = size(data,2);
            Z_12 = zeros(12,12,num_timestamps);
-%        Z_6 = zeros(6,6,num_timestamps);
+%          Z_6 = zeros(6,6,num_timestamps);
             
           for time_step = 1:num_timestamps
-                [~,Z_12(:,:,time_step),~,~,~] = topoplot_DaSh_v2(data(:,time_step)', EEG.chanlocs,  'chaninfo', EEG.chaninfo);
+              % topoplot_DaSh default gridscale = 12
+              [~,Z_12(:,:,time_step),~,~,~] = topoplot_DaSh(data(:,time_step)', EEG.chanlocs,  'chaninfo', EEG.chaninfo);
 %             [~,Z_6(:,:,time_step),~,~,~] = topoplot_DaSH(EEG.data(:,time_step)', EEG.chanlocs, 'whitebk', 'on', 'gridscale', 6, 'numcontour', 0,  'chaninfo', EEG.chaninfo); 
            end
           
