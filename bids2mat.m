@@ -1,6 +1,6 @@
-function mat2sample_extendedLabel_EEG(EEG,label_file,filepath)
+function bids2mat(EEG,label_file,filepath)
 % this function converts a 3D matrix data to .mat samples and saves
-% them in the foldername mat_files 
+% the raw and 12x12 interpolated grid data data in the foldername mat_files 
 %
 % EEG is the output of pop_epoch or eeg_regepochs for 1 subject and 1
 % particular task
@@ -54,13 +54,45 @@ function mat2sample_extendedLabel_EEG(EEG,label_file,filepath)
         if isfile(filename)
             warning('Warning: File already exisits. Skipping...')
         else
-           data = EEG.data(:,:,segment_num);
-           save(filename,'data','-mat','-v7.3','-nocompression')
             
-            sample_filepath = fullfile(filepath,filename);
+           data = EEG.data(:,:,segment_num);
+           num_timestamps = size(data,2);
+           Z_12 = zeros(12,12,num_timestamps);
+%          Z_6 = zeros(6,6,num_timestamps);
+            
+          for time_step = 1:num_timestamps
+              % topoplot_DaSh default gridscale = 12
+              [~,Z_12(:,:,time_step),~,~,~] = topoplot_DaSh(data(:,time_step)', EEG.chanlocs,  'chaninfo', EEG.chaninfo);
+%             [~,Z_6(:,:,time_step),~,~,~] = topoplot_DaSH(EEG.data(:,time_step)', EEG.chanlocs, 'whitebk', 'on', 'gridscale', 6, 'numcontour', 0,  'chaninfo', EEG.chaninfo); 
+           end
+          
+
+%          [~,Z_12(:,:,i),~,~,~] = arrayfun(@(i)topoplot_DaSh_v2(data(:,i)',EEG.chanlocs,  'chaninfo', EEG.chaninfo), num_timestamps, 'UniformOutput', false)
+
+          %z-score Z_12 
+          max_z12 = max(max(max(Z_12)));
+          min_z12 = min(min(min(Z_12)));
+          Z_12 =  (Z_12 - min_z12)./(max_z12 -min_z12);
+         
+          %change from double to single precision
+          Z_12 = single(Z_12);
+          
+          %convert all NaNs to zeros
+          Z_12(isnan(Z_12))=0;
+
+
+          % save(filename,'data','Z_6','Z_12','-mat','-v7.3','-nocompression')
+           save(filename,'data','Z_12','-mat','-v7.3','-nocompression')
+           sample_filepath = fullfile(filepath,filename);
 
             %sample_file_name, event_type, segment number, participant info, original file name
-            label_info = [sample_filepath EEG.epoch(segment_num).eventtype segment_num EEG.BIDS.pInfo(2,:) EEG.filename ];
+            % label_info = [sample_filepath EEG.epoch(segment_num).eventtype segment_num EEG.BIDS.pInfo(2,:) EEG.filename ];
+            if isempty(EEG.BIDS)
+                label_info = [sample_filepath trial_info(end) segment_num EEG.filename];
+            else
+                 label_info = [sample_filepath trial_info(end) segment_num EEG.BIDS.pInfo(2,:) EEG.filename];
+            end
+
             writetable(cell2table(label_info),label_file,'Delimiter','tab',...
                  'WriteMode','append','WriteRowNames',false,'WriteVariableNames',false,'QuoteStrings',true);
         end
