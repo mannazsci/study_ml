@@ -1,17 +1,17 @@
 function bids2mat(EEG,label_file,filepath)
 % this function converts a 3D matrix data to .mat samples and saves
-% the raw and 12x12 interpolated grid data data in the foldername mat_files 
+% the raw data, 12x12 and 6x6 interpolated grid data data in the foldername mat_files 
 %
 % EEG is the output of pop_epoch or eeg_regepochs for 1 subject and 1
 % particular task
 %
-% label_file is the name of the .txt file where all the label info with the
+% label_file is the name of the .csv file where all the label info with the
 % file location will be saved.
 %
 % filepath is the absolute path to the dataset where the final dataset will reside 
 % for AWS s3 bucket, it could be
 % filepath = 's3://openneuro.org/ds003061'
-% else by default it is the present working directory (pwd)
+%
 %
 
 
@@ -58,31 +58,30 @@ function bids2mat(EEG,label_file,filepath)
            data = EEG.data(:,:,segment_num);
            num_timestamps = size(data,2);
            Z_12 = zeros(12,12,num_timestamps);
-%          Z_6 = zeros(6,6,num_timestamps);
+           Z_6 = single(zeros(6,6,num_timestamps));
             
-          for time_step = 1:num_timestamps
-              % topoplot_DaSh default gridscale = 12
-              [~,Z_12(:,:,time_step),~,~,~] = topoplot_DaSh(data(:,time_step)', EEG.chanlocs,  'chaninfo', EEG.chaninfo);
-%             [~,Z_6(:,:,time_step),~,~,~] = topoplot_DaSH(EEG.data(:,time_step)', EEG.chanlocs, 'whitebk', 'on', 'gridscale', 6, 'numcontour', 0,  'chaninfo', EEG.chaninfo); 
+          parfor time_step = 1:num_timestamps
+               % topoplot_DaSh default gridscale = 12
+                [~,Z_12(:,:,time_step),~,~,~] = topoplot_DaSh(data(:,time_step)', EEG.chanlocs,  'chaninfo', EEG.chaninfo);
+%             [~,Z_6(:,:,time_step),~,~,~] = topoplot_DaSh(EEG.data(:,time_step)', EEG.chanlocs, 'whitebk', 'on', 'gridscale', 6, 'numcontour', 0,  'chaninfo', EEG.chaninfo); 
            end
           
 
-%          [~,Z_12(:,:,i),~,~,~] = arrayfun(@(i)topoplot_DaSh_v2(data(:,i)',EEG.chanlocs,  'chaninfo', EEG.chaninfo), num_timestamps, 'UniformOutput', false)
-
-          %z-score Z_12 
-          max_z12 = max(max(max(Z_12)));
-          min_z12 = min(min(min(Z_12)));
-          Z_12 =  (Z_12 - min_z12)./(max_z12 -min_z12);
-         
+%%          z-score Z_12 
+%           max_z12 = max(max(max(Z_12)));
+%           min_z12 = min(min(min(Z_12)));
+%           Z_12 =  (Z_12 - min_z12)./(max_z12 -min_z12);
+%%         
           %change from double to single precision
           Z_12 = single(Z_12);
           
           %convert all NaNs to zeros
           Z_12(isnan(Z_12))=0;
 
+          % calculate Z_6
+          Z_6 = imresize(Z_12,0.5,'method','nearest');
 
-          % save(filename,'data','Z_6','Z_12','-mat','-v7.3','-nocompression')
-           save(filename,'data','Z_12','-mat','-v7.3','-nocompression')
+           save(filename,'data','Z_12','Z_6','-mat','-v7.3','-nocompression')
            sample_filepath = fullfile(filepath,filename);
 
             %sample_file_name, event_type, segment number, participant info, original file name
