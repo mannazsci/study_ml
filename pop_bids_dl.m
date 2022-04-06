@@ -93,7 +93,7 @@ end
 
 
 aws_path = ['s3://openneuro.org/' STUDY.BIDS_dataset_name];
-label_file = [STUDY.BIDS_dataset_name '_labels_s3.txt'];
+label_file = [STUDY.BIDS_dataset_name '_labels_s3.csv'];
 
 CURRENTSTUDY = 1;
 for CURRENTSET = 1:length(ALLEEG)
