@@ -29,9 +29,7 @@ if nargin < 3
             'if ~isequal(bidsFolderxx, 0), set(findobj(gcbf, ''tag'', ''outputfolder''), ''string'', bidsFolderxx); end;' ...
             'clear bidsFolderxx;' ];
             
-    cb_eeg          = 'pop_exportbids(''edit_eeg'', gcbf);';
-    cb_participants = 'pop_exportbids(''edit_participants'', gcbf);';
-    cb_events       = 'pop_exportbids(''edit_events'', gcbf);';
+    cb_events       = 'pop_bids_dl(''edit_events'', gcbf);';
     uilist = { ...
         { 'Style', 'text', 'string', 'Export EEGLAB study to ML/DL format', 'fontweight', 'bold'  }, ...
         {} ...
@@ -59,7 +57,25 @@ if nargin < 3
     % decode some outputs
     if ~isempty(strfind(restag.license, 'CC0')), restag.license = 'CC0'; end
     options = { 'targetdir' restag.outputfolder 'License' restag.license 'comments' restag.changes 'createids' fastif(restag.newids, 'on', 'off') 'events' restag.events};
+elseif isstr(STUDY)
+    command = STUDY;
+    fig = ALLEEG;
+    userdata = get(fig, 'userdata');
+
+    switch command
+        case 'edit_events'
+            userdata.EEG = pop_participantinfo(userdata.EEG);
+        case 'edit_events'
+            userdata.EEG = pop_eventinfo(userdata.EEG);
+        case 'edit_task'
+            userdata.EEG  = pop_taskinfo(userdata.EEG);
+        case 'edit_eeg'
+            userdata.EEG = pop_eegacqinfo(userdata.EEG);
+    end
+
 else
+
+
     options = varargin;
 end
     
