@@ -1,4 +1,4 @@
-function bids2mat(EEG,label_file,filepath)
+function bids2mat(EEG,label_file,folder)
 % this function converts a 3D matrix data to .mat samples and saves
 % the raw data, 12x12 and 6x6 interpolated grid data data in the foldername mat_files
 %
@@ -14,10 +14,6 @@ function bids2mat(EEG,label_file,filepath)
 %
 %
 
-if isempty(filepath)
-    filepath = pwd; %path to the dataset folder, default pwd
-end
-
 %     % delete any pre-exisiting label file with the same name
 %     if isfile(label_file)
 %         disp('Deleting old label file ...')
@@ -30,7 +26,7 @@ if ~exist('mat_files','dir')
     mkdir('mat_files')  %mat files will be written in a new folder created in the pwd
 end
 
-subject_dir = fullfile('mat_files', EEG.subject);
+subject_dir = fullfile(folder, 'mat_files', EEG.subject);
 if ~exist(subject_dir,'dir')
     mkdir(subject_dir)
 end
@@ -52,9 +48,9 @@ for segment_num = 1:num_samples
     if ~isempty(EEG.session) filename = [ filename '_session_' num2str(EEG.session) ]; end
     filename = [ filename '.mat' ];
 
-    if isfile(filename)
-        warning('Warning: File already exisits. Skipping...')
-    else
+    %if isfile(filename)
+    %    warning('Warning: File already exisits. Skipping...')
+    %else
 
         data = EEG.data(:,:,segment_num);
         num_timestamps = size(data,2);
@@ -83,7 +79,7 @@ for segment_num = 1:num_samples
         Z_6 = imresize(Z_12,0.5,'method','nearest');
 
         save(filename,'data','Z_12','Z_6','-mat','-v7.3','-nocompression')
-        sample_filepath = fullfile(filepath,filename);
+        sample_filepath = fullfile(folder,filename);
 
         %sample_file_name, event_type, segment number, participant info, original file name
         % label_info = [sample_filepath EEG.epoch(segment_num).eventtype segment_num EEG.BIDS.pInfo(2,:) EEG.filename ];
@@ -91,5 +87,5 @@ for segment_num = 1:num_samples
 
         writetable(cell2table(label_info),label_file,'Delimiter','tab',...
             'WriteMode','append','WriteRowNames',false,'WriteVariableNames',false,'QuoteStrings',true);
-    end
+    %end
 end
