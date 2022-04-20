@@ -5,7 +5,7 @@ function bids2mat(EEG,label_file,filepath)
 % EEG is the output of pop_epoch or eeg_regepochs for 1 subject and 1
 % particular task
 %
-% label_file is the name of the .txt file where all the label info with the
+% label_file is the name of the .csv file where all the label info with the
 % file location will be saved.
 %
 % filepath is the absolute path to the dataset where the final dataset will reside 
