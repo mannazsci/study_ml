@@ -135,16 +135,16 @@ for segment_num = 1:num_samples
 
         %sample_file_name, event_type, segment number, participant info, original file name
         if ~isfield(EEG, 'BIDS') || isempty(EEG.BIDS)
-            label_info1 = [sample_filepath1 trial_info(end) segment_num EEG.filename];
-            label_info2 = [sample_filepath2 trial_info(end) segment_num EEG.filename];
+            label_info1 = [sample_filepath1 trial_info(segment_num,:) segment_num EEG.filename];
+            label_info2 = [sample_filepath2 trial_info(segment_num,:) segment_num EEG.filename];
         else
-            label_info1 = [sample_filepath trial_info(end) segment_num EEG.BIDS.pInfo(2,:) EEG.filename];
-            label_info2 = [sample_filepath trial_info(end) segment_num EEG.BIDS.pInfo(2,:) EEG.filename];
+            label_info1 = [sample_filepath trial_info(segment_num,:) segment_num EEG.BIDS.pInfo(2,:) EEG.filename];
+            label_info2 = [sample_filepath trial_info(segment_num,:) segment_num EEG.BIDS.pInfo(2,:) EEG.filename];
         end
 
-        writetable(cell2table(label_info1),label_file1,'Delimiter','tab','WriteMode','append','WriteRowNames',false,'WriteVariableNames',false,'QuoteStrings',true);
+        writetable(cell2table(label_info1),label_file1,'Delimiter',',','WriteMode','append','WriteRowNames',false,'WriteVariableNames',false,'QuoteStrings',true);
         if ~isempty(g.cloudpath)
-            writetable(cell2table(label_info2),label_file2,'Delimiter','tab','WriteMode','append','WriteRowNames',false,'WriteVariableNames',false,'QuoteStrings',true);
+            writetable(cell2table(label_info2),label_file2,'Delimiter',',','WriteMode','append','WriteRowNames',false,'WriteVariableNames',false,'QuoteStrings',true);
         end
     end
 end
