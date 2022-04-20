@@ -144,7 +144,7 @@ end
 % end
 
 %%
-
+CURRENTSTUDY = 1;
 for CURRENTSET = 1:length(ALLEEG)
     CURRENTSET
     EEG =  ALLEEG(CURRENTSET);
