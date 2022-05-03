@@ -4,12 +4,13 @@ addpath('/home/arno/eeglab');
 eeglab
 eeglabPath = fileparts(which('eeglab'))
 
-% Load tutorial dataset
-[STUDY, ALLEEG] = pop_importbids('/home/arno/nemar/openneuro/ds003061', 'eventtype', 'value', 'outputdir', '/home/arno/nemar/arno/ds003061-bidsdl');
+if 0
+    % Load tutorial dataset
+    [STUDY, ALLEEG] = pop_importbids('/home/arno/nemar/openneuro/ds003061', 'eventtype', 'value', 'outputdir', '/home/arno/nemar/arno/ds003061-bidsdl');
 
-%% BIDS_DL plugin export
-
-pop_studydl(STUDY, ALLEEG, 'outputdir', fullfile(eeglabPath, 'ML_EXPORT'))
+    %% BIDS_DL plugin export
+    pop_studydl(STUDY, ALLEEG, 'outputdir', fullfile(eeglabPath, 'ML_EXPORT'))
+end
 
 %% Training with 12x12 interpolated data
 %% Create the datastore
@@ -45,6 +46,15 @@ for iFile = 1:length(selected_files)
         error('Mismatch at position %d, label %s and folder %s', iFile, imds.Files{1}, selected_files{iFile}(3:end));
     end
 end
+
+%% compute weights if classes are imbalanced
+classes = unique(imds.Labels);
+uniqueLab = cellstr(unique(imds.Labels));
+allLabels = cellstr(imds.Labels);
+for iCat = 1:length(uniqueLab)
+    n(iCat) = sum(cellfun(@(x)isequal(uniqueLab{iCat}, x), allLabels));
+end
+classWeights = n/sum(n);
 
 % split datastore into training, testing and validation
 rng(1)
@@ -86,7 +96,7 @@ layers = [
     dropoutLayer(0.5,"Name","drop2")
     fullyConnectedLayer(num_labels,"Name","fc3","WeightL2Factor",0)
     softmaxLayer("Name","prob")
-    classificationLayer("Name","classoutput")];
+    classificationLayer('Name','classoutput','Classes', classes, 'ClassWeights', classWeights)];
 
 %% Training the network
 % Define training settings. There are several <https://in.mathworks.com/help/deeplearning/ref/trainingoptions.html 
@@ -96,7 +106,7 @@ options = trainingOptions('adam', ...
     'SquaredGradientDecayFactor',0.99, ...
     'ValidationData', val_imds, ...
     'MaxEpochs',10, ...
-    'MiniBatchSize',40);
+    'MiniBatchSize',200);
     
 %% 
 % Train the network
