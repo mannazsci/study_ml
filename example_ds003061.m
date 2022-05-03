@@ -1,21 +1,12 @@
 % *Run 'eeglab' from the folder containing the eeglab codes. This will add all 
 % the relevant EEGLAB functions and directories to path.*
+addpath('/home/arno/eeglab');
 eeglab
+eeglabPath = fileparts(which('eeglab'))
 
 % Load tutorial dataset
 [STUDY, ALLEEG] = pop_importbids('/home/arno/nemar/openneuro/ds003061', 'eventtype', 'value', 'outputdir', '/home/arno/nemar/arno/ds003061-bidsdl');
 
-eeglabPath = fileparts(which('eeglab'))
-EEG = pop_loadset('filename','eeglab_data.set','filepath', fullfile(eeglabPath, 'sample_data'));
-[ALLEEG, EEG, CURRENTSET] = eeg_store( ALLEEG, EEG, 0 );
-%% 
-% Create STUDY from single dataset
-
-[STUDY ALLEEG] = std_editset( STUDY, ALLEEG, 'commands',{{'index',1,'subject','S1'}},'updatedat','off','rmclust','on' );
-[STUDY ALLEEG] = std_checkset(STUDY, ALLEEG);
-CURRENTSTUDY = 1; EEG = ALLEEG; CURRENTSET = [1:length(EEG)];
-%% 
-% 
 %% BIDS_DL plugin export
 
 pop_studydl(STUDY, ALLEEG, 'outputdir', fullfile(eeglabPath, 'ML_EXPORT'))
@@ -30,14 +21,30 @@ readfun = @(x) load_sample(load(x));
 imds.ReadFcn = readfun;
 
 %% Preview the first sample of the datastore
-sample = preview(train_imds);
+sample = preview(imds);
 fprintf('Sample size = %d, %d, %d\n', size(sample));
 
 %% Assign labels
 label_info = readtable(fullfile(eeglabPath, 'ML_EXPORT', 'labels_local.csv'));
 label_info_sorted = sortrows(label_info,1);
-label_col = label_info_sorted.Var3; % type of stimulus∂
-imds.Labels = categorical(label_col);
+label_col = label_info_sorted.Var7; % type of stimulus
+row_selected = zeros(1,length(label_col), 'logical');
+selected = { 'standard' 'oddball_with_reponse' };
+for iSelected = 1:length(selected)
+    inds = strmatch(selected{iSelected}, label_col, 'exact');
+    row_selected(inds) = true;
+end
+imds.Files = imds.Files(row_selected);
+imds.Labels = categorical(label_col(row_selected));
+
+%% checking the correspondance
+selected_files = label_info_sorted.Var1(row_selected);
+imds_files     = imds.Files;
+for iFile = 1:length(selected_files)
+    if isempty(strfind(imds_files{iFile}, selected_files{iFile}(3:end)))
+        error('Mismatch at position %d, label %s and folder %s', iFile, imds.Files{1}, selected_files{iFile}(3:end));
+    end
+end
 
 % split datastore into training, testing and validation
 rng(1)

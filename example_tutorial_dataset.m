@@ -28,7 +28,7 @@ readfun = @(x) load_sample(load(x));
 imds.ReadFcn = readfun;
 
 %% Preview the first sample of the datastore
-sample = preview(train_imds);
+sample = preview(imds);
 fprintf('Sample size = %d, %d, %d\n', size(sample));
 
 %% Assign labels

@@ -86,12 +86,16 @@ g = finputcheck(options, { 'outputdir' 'string'  {}   fullfile(STUDY.filepath, '
     'License'   'string'  {}    'CC0';
     'comments' 'string'  {}    '';
     'events'   'string'  {}    '';
+    'eraseall'   'string'  { 'on' 'off' } 'off';
     'createids' 'string' { 'on' 'off' } 'on' }, 'pop_studydl');
 if isstr(g), error(g); end
 
+if strcmpi(g.eraseall, 'on')
+    rmdir(g.outputdir, 's');
+end
 for iSet = 1:length(ALLEEG)
     EEG =  ALLEEG(iSet);
-    EEG.subject = STUDY.datasetinfo(iSet). subject;
+    EEG.subject = STUDY.datasetinfo(iSet).subject;
 
     % check subject
     if isempty(EEG.subject)
