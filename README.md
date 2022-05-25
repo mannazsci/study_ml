@@ -1,6 +1,10 @@
 # ML/DL EEGLAB export plugin
 
-This EEGLAB plugin formats EEG data contained in a STUDY to be processed by Machine Learning (ML) and Deep Learning (DL) solution and stored on the Amazon S3 cloud for dynamical access if necessary.
+This EEGLAB plugin formats EEG data contained in a STUDY to be processed by Machine Learning (ML) and Deep Learning (DL) solution and stored on the Amazon S3 cloud for dynamical access if necessary. 
+
+```diff
+- Although the code is public, this version is alpha and still in development.
+```
 
 # Examples
 
@@ -8,4 +12,5 @@ Use [example_tutorial_dataset.m|example_tutorial_dataset.m] for an example of da
 
 Use [example_ds003061.m|example_ds003061.m] for an example of BIDS STUDY conversion.
 
+# To do
 
