@@ -3,7 +3,7 @@
 This EEGLAB plugin formats EEG data contained in a STUDY to be processed by Machine Learning (ML) and Deep Learning (DL) solution and stored on the Amazon S3 cloud for dynamical access if necessary. 
 
 ```diff
-Although the code is public, this version is alpha and still in development. Use at your own risk.
+- Although the code is public, this version is alpha and still in development. Use at your own risk.
 ```
 
 # Examples
