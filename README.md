@@ -8,7 +8,7 @@ Although the code is public, this version is alpha and still in development. Use
 
 # Examples
 
-Use [example_tutorial_dataset.m|example_tutorial_dataset.m] for an example of dataset conversion. This simple script creates a STUDY with a single dataset, convert it to a format suitable for deep learning and apply a simple convolutional network. This example is not supposed to provide meaningful results.
+Use [example_tutorial_dataset.m](example_tutorial_dataset.m) for an example of dataset conversion. This simple script creates a STUDY with a single dataset, convert it to a format suitable for deep learning and apply a simple convolutional network. This example is not supposed to provide meaningful results.
 
 Use [example_ds003061.m|example_ds003061.m] for an example of BIDS STUDY conversion.
 
